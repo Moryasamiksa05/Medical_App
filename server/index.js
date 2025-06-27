@@ -11,14 +11,25 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// CORS Configuration
+const allowedOrigins = ['https://medical-app-e1vd.vercel.app'];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
+// Other Middlewares
 app.use(express.json());
 
 // MongoDB connection (using in-memory for demo)
 const connectDB = async () => {
   try {
-    // For demo purposes, we'll use a simple in-memory storage
     console.log('Database connected (in-memory for demo)');
   } catch (error) {
     console.error('Database connection failed:', error);

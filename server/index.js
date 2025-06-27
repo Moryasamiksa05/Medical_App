@@ -11,8 +11,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS Configuration
+//  Connect MongoDB Atlas
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log('MongoDB connected successfully');
+  } catch (error) {
+    console.error(' MongoDB connection failed:', error);
+    process.exit(1);
+  }
+};
+
+//  CORS for Vercel frontend
 const allowedOrigins = ['https://medical-app-e1vd.vercel.app'];
+
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -21,34 +36,25 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,
+  credentials: true
 }));
 
-// Other Middlewares
+// Middleware to parse JSON
 app.use(express.json());
 
-// MongoDB connection (using in-memory for demo)
-const connectDB = async () => {
-  try {
-    console.log('Database connected (in-memory for demo)');
-  } catch (error) {
-    console.error('Database connection failed:', error);
-    process.exit(1);
-  }
-};
-
-// Routes
+//  Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/doctors', doctorRoutes);
 
-// Health check
+//  Health check route
 app.get('/api/health', (req, res) => {
-  res.json({ message: 'Server is running!' });
+  res.json({ message: ' Server is running!' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  connectDB();
+// Start Server after DB Connects
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(` Server running on port ${PORT}`);
+  });
 });

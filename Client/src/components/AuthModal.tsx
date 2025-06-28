@@ -29,14 +29,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode, onClose }) => {
 
     try {
       let success = false;
-      
+
       if (mode === 'signin') {
         success = await login(formData.email, formData.password, selectedRole);
       } else {
-        success = await register({
+        const userPayload: any = {
           ...formData,
           role: selectedRole,
-        });
+        };
+
+        // Remove empty specialization if not a doctor
+        if (selectedRole !== 'doctor') {
+          delete userPayload.specialization;
+        }
+
+        success = await register(userPayload);
       }
 
       if (success) {
@@ -269,7 +276,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode, onClose }) => {
                 {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}
                 <button
                   type="button"
-                  onClick={() => window.location.reload()} // Simple way to switch modes
+                  onClick={() => window.location.reload()}
                   className={`ml-1 font-medium ${
                     selectedRole === 'patient' ? 'text-blue-600 hover:text-blue-700' : 'text-teal-600 hover:text-teal-700'
                   }`}

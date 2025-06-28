@@ -6,7 +6,12 @@ const userSchema = new mongoose.Schema({
   password: String,
   role: { type: String, enum: ['patient', 'doctor'] },
   phone: String,
-  specialization: String,
+  specialization: {
+    type: String,
+    required: function () {
+      return this.role === 'doctor'; // only required if doctor
+    }
+  },
   createdAt: { type: Date, default: Date.now }
 });
 

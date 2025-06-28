@@ -1,56 +1,44 @@
 import express from 'express';
-import { appointments, users } from '../data/mockData.js';
+import Appointment from '../models/Appointment.js';
+import User from '../models/User.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Get appointments for user
-router.get('/', authenticateToken, (req, res) => {
+// Get appointments for logged-in user
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const { userId, role } = req.user;
-    
-    let userAppointments;
-    if (role === 'patient') {
-      userAppointments = appointments.filter(apt => apt.patientId === userId);
-    } else {
-      userAppointments = appointments.filter(apt => apt.doctorId === userId);
-    }
 
-    // Populate with user data
-    const populatedAppointments = userAppointments.map(apt => {
-      const patient = users.find(u => u.id === apt.patientId);
-      const doctor = users.find(u => u.id === apt.doctorId);
-      return {
-        ...apt,
-        patient: patient ? { ...patient, password: undefined } : null,
-        doctor: doctor ? { ...doctor, password: undefined } : null,
-      };
-    });
+    const filter = role === 'patient'
+      ? { patientId: userId }
+      : { doctorId: userId };
 
-    res.json(populatedAppointments);
+    const appointments = await Appointment.find(filter)
+      .populate('patientId', '-password')
+      .populate('doctorId', '-password');
+
+    res.json(appointments);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 // Create appointment
-router.post('/', authenticateToken, (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { doctorId, date, time, reason } = req.body;
     const { userId } = req.user;
 
-    const newAppointment = {
-      id: Date.now().toString(),
+    const newAppointment = new Appointment({
       patientId: userId,
       doctorId,
-      date: new Date(date),
+      date,
       time,
-      status: 'pending',
-      reason,
-      createdAt: new Date(),
-    };
+      reason
+    });
 
-    appointments.push(newAppointment);
+    await newAppointment.save();
 
     res.status(201).json({
       message: 'Appointment created successfully',
@@ -62,24 +50,25 @@ router.post('/', authenticateToken, (req, res) => {
 });
 
 // Update appointment status
-router.patch('/:id/status', authenticateToken, (req, res) => {
+router.patch('/:id/status', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
     const { userId, role } = req.user;
 
-    const appointment = appointments.find(apt => apt.id === id);
+    const appointment = await Appointment.findById(id);
+
     if (!appointment) {
       return res.status(404).json({ message: 'Appointment not found' });
     }
 
-    // Only doctors can approve/reject appointments
-    if (role !== 'doctor' || appointment.doctorId !== userId) {
+    if (role !== 'doctor' || appointment.doctorId.toString() !== userId) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 
     appointment.status = status;
     appointment.updatedAt = new Date();
+    await appointment.save();
 
     res.json({
       message: 'Appointment status updated',

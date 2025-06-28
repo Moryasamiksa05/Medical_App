@@ -31,23 +31,24 @@ export const authAPI = {
 
 // Appointments API
 export const appointmentsAPI = {
-  getAppointments: () => api.get('/appointments'),
-  
+  getAppointments: () => api.get('/api/appointments'),
+
   createAppointment: (appointmentData) =>
-    api.post('/appointments', appointmentData),
-  
+    api.post('/api/appointments', appointmentData),
+
   updateAppointmentStatus: (id, status) =>
-    api.patch(`/appointments/${id}/status`, { status }),
+    api.patch(`/api/appointments/${id}/status`, { status }),
 };
 
 // Doctors API
 export const doctorsAPI = {
   getDoctors: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    return api.get(`/doctors${queryString ? `?${queryString}` : ''}`);
+    return api.get(`/api/doctors${queryString ? `?${queryString}` : ''}`);
   },
-  
-  getDoctorById: (id) => api.get(`/doctors/${id}`),
+
+  getDoctorById: (id) => api.get(`/api/doctors/${id}`),
 };
+
 
 export default api;

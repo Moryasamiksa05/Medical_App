@@ -55,7 +55,9 @@ const PatientDashboard: React.FC = () => {
   setLoading(true);
   try {
     const payload = {
-      doctorId: selectedDoctor.id,
+       
+      doctorId: selectedDoctor._id,
+      userId: user?._id,
       date: new Date(bookingForm.date).toISOString(),
       time: bookingForm.time,
       reason: bookingForm.reason,

@@ -1,18 +1,5 @@
-export interface Appointment {
-  _id: string;
-  patientId: string;
-  doctorId: string;
-  date: Date;
-  time: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'pending';
-  reason: string;
-  notes?: string;
-  patient: Patient;
-  doctor: Doctor;
-}
-
 export interface User {
-  _id: string;
+ _id: string; 
   email: string;
   name: string;
   role: 'patient' | 'doctor';
@@ -30,4 +17,37 @@ export interface Doctor extends User {
   fee: number;
   availability: TimeSlot[];
   about: string;
+}
+
+export interface Patient extends User {
+  role: 'patient';
+  dateOfBirth?: Date;
+  gender?: 'male' | 'female' | 'other';
+  address?: string;
+  emergencyContact?: string;
+}
+
+export interface TimeSlot {
+  day: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface Appointment {
+  id: string;
+  patientId: string;
+  doctorId: string;
+  date: Date;
+  time: string;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'pending';
+  reason: string;
+  notes?: string;
+  patient: Patient;
+  doctor: Doctor;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  loading: boolean;
 }

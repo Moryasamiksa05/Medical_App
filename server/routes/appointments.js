@@ -30,10 +30,21 @@ router.post('/', authenticateToken, async (req, res) => {
     const { doctorId, date, time, reason } = req.body;
     const { userId } = req.user;
 
+    //  Validate input fields
+    if (!doctorId || !date || !time || !reason) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    //  Convert date string to Date object
+    const formattedDate = new Date(date);
+    if (isNaN(formattedDate.getTime())) {
+      return res.status(400).json({ message: 'Invalid date format' });
+    }
+
     const newAppointment = new Appointment({
       patientId: userId,
       doctorId,
-      date,
+      date: formattedDate,   // This line fixed the issue
       time,
       reason
     });

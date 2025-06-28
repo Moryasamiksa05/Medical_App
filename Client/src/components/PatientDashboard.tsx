@@ -53,19 +53,18 @@ const PatientDashboard: React.FC = () => {
   if (!selectedDoctor) return;
 
   setLoading(true);
-  try {
-    const payload = {
-       
-      doctorId: selectedDoctor._id,
-      userId: user?._id,
-      date: new Date(bookingForm.date).toISOString(),
-      time: bookingForm.time,
-      reason: bookingForm.reason,
-    };
-    console.log('Booking Payload:', payload); // Debug log
+try {
+  const payload = {
+    doctor: selectedDoctor._id, //  correct key name
+    date: new Date(bookingForm.date).toISOString(),
+    time: bookingForm.time,
+    reason: bookingForm.reason,
+  };
 
-    await appointmentsAPI.createAppointment(payload);
-    
+  console.log('Booking Payload:', payload); // Debug log
+
+  await appointmentsAPI.createAppointment(payload);
+  // ...rest of the code
     setShowBookingModal(false);
     setBookingForm({ date: '', time: '', reason: '' });
     fetchAppointments();

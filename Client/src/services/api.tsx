@@ -21,10 +21,10 @@ api.interceptors.request.use((config) => {
 
 // Auth API
 export const authAPI = {
-  login: (email, password, role) =>
+  login: (email: string, password: string, role: 'doctor' | 'patient'): Promise<any> =>
     api.post('/api/auth/login', { email, password, role }),
-  
-  register: (userData) =>
+
+  register: (userData: { name: string; email: string; password: string; role: 'doctor' | 'patient' }): Promise<any> =>
     api.post('/api/auth/register', userData),
 };
 
@@ -33,11 +33,13 @@ export const authAPI = {
 export const appointmentsAPI = {
   getAppointments: () => api.get('/api/appointments'),
 
-  createAppointment: (appointmentData) =>
-    api.post('/api/appointments', appointmentData),
+ createAppointment: (appointmentData: any): Promise<any> =>
+  api.post('/api/appointments', appointmentData),
 
-  updateAppointmentStatus: (id, status) =>
-    api.patch(`/api/appointments/${id}/status`, { status }),
+
+updateAppointmentStatus: (id: string, status: string): Promise<any> =>
+  api.patch(`/api/appointments/${id}/status`, { status }),
+
 };
 
 // Doctors API
@@ -47,7 +49,9 @@ export const doctorsAPI = {
     return api.get(`/api/doctors${queryString ? `?${queryString}` : ''}`);
   },
 
-  getDoctorById: (id) => api.get(`/api/doctors/${id}`),
+getDoctorById: (id: string): Promise<any> =>
+  api.get(`/api/doctors/${id}`),
+
 };
 
 

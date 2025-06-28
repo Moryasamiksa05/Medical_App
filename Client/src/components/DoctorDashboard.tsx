@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Phone, Mail, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Appointment } from '../types';
-import { appointmentsAPI } from '../services/api';
+import {  appointmentsAPI } from '../services/api';
+
 
 const DoctorDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -14,14 +15,29 @@ const DoctorDashboard: React.FC = () => {
     fetchAppointments();
   }, []);
 
-  const fetchAppointments = async () => {
-    try {
-      const response = await appointmentsAPI.getAppointments();
-      setAppointments(response.data);
-    } catch (error) {
-      console.error('Error fetching appointments:', error);
-    }
-  };
+const fetchAppointments = async () => {
+  try {
+    const response = await appointmentsAPI.getAppointments();
+
+    const mappedAppointments = response.data.map((apt: any) => ({
+      ...apt,
+      id: apt._id,
+      patient: {
+        ...apt.patient,
+        id: apt.patient._id,
+      },
+      doctor: {
+        ...apt.doctor,
+        id: apt.doctor._id,
+      },
+    }));
+
+    setAppointments(mappedAppointments);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+  }
+};
+
 
   const handleAppointmentAction = async (appointmentId: string, action: 'approve' | 'reject') => {
     setLoading(true);

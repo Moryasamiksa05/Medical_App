@@ -49,29 +49,33 @@ const PatientDashboard: React.FC = () => {
   };
 
   const handleSubmitBooking = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedDoctor) return;
+  e.preventDefault();
+  if (!selectedDoctor) return;
 
-    setLoading(true);
-    try {
-      await appointmentsAPI.createAppointment({
-        doctorId: selectedDoctor.id,
-        date: bookingForm.date,
-        time: bookingForm.time,
-        reason: bookingForm.reason,
-      });
-      
-      setShowBookingModal(false);
-      setBookingForm({ date: '', time: '', reason: '' });
-      fetchAppointments(); // Refresh appointments
-      alert('Appointment booked successfully!');
-    } catch (error) {
-      console.error('Error booking appointment:', error);
-      alert('Failed to book appointment. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    const payload = {
+      doctorId: selectedDoctor.id,
+      date: new Date(bookingForm.date).toISOString(),
+      time: bookingForm.time,
+      reason: bookingForm.reason,
+    };
+    console.log('Booking Payload:', payload); // Debug log
+
+    await appointmentsAPI.createAppointment(payload);
+    
+    setShowBookingModal(false);
+    setBookingForm({ date: '', time: '', reason: '' });
+    fetchAppointments();
+    alert('Appointment booked successfully!');
+  } catch (error) {
+    console.error('Error booking appointment:', error);
+    alert('Failed to book appointment. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const filteredDoctors = doctors.filter(doctor => {
     const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

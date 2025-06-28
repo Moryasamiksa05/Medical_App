@@ -22,11 +22,12 @@ api.interceptors.request.use((config) => {
 // Auth API
 export const authAPI = {
   login: (email, password, role) =>
-    api.post('/auth/login', { email, password, role }),
+    api.post('/api/auth/login', { email, password, role }),
   
   register: (userData) =>
-    api.post('/auth/register', userData),
+    api.post('/api/auth/register', userData),
 };
+
 
 // Appointments API
 export const appointmentsAPI = {
